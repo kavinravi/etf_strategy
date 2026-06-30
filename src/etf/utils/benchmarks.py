@@ -1,5 +1,5 @@
 from __future__ import annotations
-import numpy as np, pandas as pd
+import pandas as pd
 
 def buy_hold_spy(spy_monthly_returns: pd.Series) -> pd.Series:
     return spy_monthly_returns.dropna()
