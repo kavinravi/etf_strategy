@@ -1,0 +1,30 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+build/
+dist/
+.venv/
+venv/
+env/
+.ipython/
+
+# Environments / secrets
+.env
+.env.*
+!.env.example
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Data & artifacts (large / regenerated)
+data/raw/
+data/interim/
+artifacts/
+reports/figures/
+
+# OS / editor
+.DS_Store
+.idea/
+.vscode/
