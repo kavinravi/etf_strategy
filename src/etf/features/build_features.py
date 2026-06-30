@@ -1,5 +1,6 @@
 from __future__ import annotations
 import numpy as np, pandas as pd
+from etf.data.ingest_macro import align_macro_monthly
 
 _MONTH = 21
 
@@ -38,3 +39,31 @@ def compute_price_features(daily_prices: pd.DataFrame, spy_daily: pd.Series,
     return pd.DataFrame.from_dict(out, orient="index")[
         ["mom_3m","mom_6m","mom_12m","mom_12m1m","vol_63d","vol_126d","dd_252d","rs_3m","rs_6m","rs_12m"]
     ]
+
+MACRO_COLS = ["mac_vixcls", "mac_dgs3mo", "mac_dgs10", "mac_t10y2y"]
+PRICE_COLS = ["mom_3m","mom_6m","mom_12m","mom_12m1m","vol_63d","vol_126d","dd_252d","rs_3m","rs_6m","rs_12m"]
+FEATURE_COLS = PRICE_COLS + MACRO_COLS
+
+def add_label(df: pd.DataFrame) -> pd.DataFrame:
+    df = df.copy()
+    df["y_rank"] = df.groupby("date")["fwd_ret_1m"].rank(method="average")
+    # rescale per-date min->0, max->1 so endpoints are stable for tests/training
+    g = df.groupby("date")["y_rank"]
+    df["y_rank"] = (df["y_rank"] - g.transform("min")) / (g.transform("max") - g.transform("min"))
+    # guard against single ticker or all-equal returns on a date: fillna with 0.5 (neutral value)
+    df["y_rank"] = df["y_rank"].fillna(0.5)
+    return df
+
+def assemble_features(panel: pd.DataFrame, daily_prices: pd.DataFrame,
+                      spy_daily: pd.Series, macro_daily: pd.DataFrame) -> pd.DataFrame:
+    asof = pd.DatetimeIndex(sorted(panel["date"].unique()))
+    feats = []
+    for t, sub in panel.groupby("ticker"):
+        f = compute_price_features(daily_prices, spy_daily, pd.DatetimeIndex(sub["date"]), t)
+        f = f.reset_index(names="date"); f["ticker"] = t
+        feats.append(f)
+    fmat = pd.concat(feats, ignore_index=True)
+    macro_m = align_macro_monthly(macro_daily, asof).reset_index(names="date")
+    out = panel.merge(fmat, on=["date", "ticker"], how="left").merge(macro_m, on="date", how="left")
+    out = out.dropna(subset=["fwd_ret_1m"] + PRICE_COLS).reset_index(drop=True)
+    return add_label(out)
