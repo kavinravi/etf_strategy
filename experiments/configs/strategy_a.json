@@ -1,0 +1,8 @@
+{
+  "xgb_params": {"n_estimators": 300, "max_depth": 3, "learning_rate": 0.05,
+                 "subsample": 0.8, "colsample_bytree": 0.8, "min_child_weight": 5,
+                 "reg_lambda": 1.0, "objective": "reg:squarederror"},
+  "tilt_scale": 0.5, "max_weight": 0.18, "min_weight": 0.02,
+  "no_trade_band": 0.02, "cost_bps": 5.0,
+  "first_test_year": 2005, "last_test_year": 2025
+}
