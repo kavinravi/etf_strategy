@@ -1,0 +1,19 @@
+# Runtime dependencies for the ETF strategy project.
+# Mirrors [project.dependencies] in pyproject.toml.
+# Python >= 3.12 is required (see .python-version).
+
+pandas>=2.2
+numpy>=1.26
+scipy>=1.11
+scikit-learn>=1.4
+xgboost>=2.0
+matplotlib>=3.8
+pyarrow>=15
+yfinance>=0.2.40
+pandas-datareader>=0.10
+
+# Dev / notebook extras (install with: pip install -r requirements.txt)
+# Comment these out for a lean runtime install.
+pytest>=8
+jupyter>=1.0
+ipython>=8
